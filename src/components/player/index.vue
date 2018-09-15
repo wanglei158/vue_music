@@ -145,11 +145,10 @@ export default {
     }
   },
   watch: {
-    currentSong(newSong,oldSong) {
-      if (!newSong.id||newSong.id === oldSong.id) {
+    currentSong(newSong, oldSong) {
+      if (!newSong.id || newSong.id === oldSong.id) {
         return;
       }
-      this.$refs.audio.load();
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         if (this.playing) {
@@ -289,6 +288,7 @@ export default {
       }
       this.songReady = true;
       this.savePlayHistory(this.currentSong);
+      window.removeEventListener("click", this.forceSafariPlayAudio, false);
     },
     errorPlay() {
       this.songReady = true;
@@ -414,10 +414,17 @@ export default {
     },
     openNormal() {
       this.setFullScreen(true);
+    },
+    forceSafariPlayAudio() {
+      this.$refs.audio.load(); // iOS 9   还需要额外的 load 一下, 否则直接 play 无效
+      this.$refs.audio.pause(); // iOS 7/8 仅需要 play 一下
     }
   },
   created() {
     this.touch = {};
+  },
+  mounted() {
+    window.addEventListener("click", this.forceSafariPlayAudio, false);
   }
 };
 </script>
