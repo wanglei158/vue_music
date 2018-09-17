@@ -416,7 +416,11 @@ export default {
       this.setFullScreen(true);
     },
     forceSafariPlayAudio() {
+<<<<<<< HEAD
       this.$refs.audio.load(); // iOS 9   还需要额外的 load 一下, 否则直接 play 无效
+=======
+      // this.$refs.audio.load(); // iOS 9   还需要额外的 load 一下, 否则直接 play 无效
+>>>>>>> 6a6992e4386572b18060ec7b68cb368250f9857a
       this.$refs.audio.pause(); // iOS 7/8 仅需要 play 一下
     }
   },
