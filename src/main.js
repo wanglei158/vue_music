@@ -8,8 +8,8 @@ import fastclick from "fastclick";
 
 import "common/stylus/index.styl";
 /* eslint-disable */
-import vConsole1 from "vconsole";
-var vConsole = new vConsole1();
+// import vConsole1 from "vconsole";
+// var vConsole = new vConsole1();
 /* eslint-disable */
 
 console.log("test");
