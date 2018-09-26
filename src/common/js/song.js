@@ -44,7 +44,7 @@ export function createSong(musicData) {
     url:
       "http://ws.stream.qqmusic.qq.com/C100" +
       musicData.songmid +
-      ".m4a?fromtag=0&guid=126548448"
+      ".m4a?fromtag=46"
   });
 }
 
