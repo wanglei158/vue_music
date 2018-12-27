@@ -22,4 +22,4 @@ npm run build --report
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 # 现在我已经建立功能分支1,用功能分支feture1
-# 我是master 我已经改变2，分支请知晓h
+# 我是master 我已经改变2，分支请知晓j
