@@ -2,11 +2,7 @@
 
 > 音乐播放器
 > 1、vuex vue-router（路由懒加载）
-<<<<<<< HEAD
-> some question have 我擅自加了点料 resolve
-=======
 > some question have 我 resolve
->>>>>>> 4dcfcafd84823c89ddea5a692fddc00da3f6b1de
 
 ## Build Setup
 
