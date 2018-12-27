@@ -2,7 +2,7 @@
 
 > 音乐播放器
 > 1、vuex vue-router（路由懒加载）
-> 2、还存在一些问题没有解决，在 safari 浏览器上无法播放（有方法的请指教 1140153859@qq.com)
+> some question have 我擅自加了点料 resolve
 
 ## Build Setup
 
