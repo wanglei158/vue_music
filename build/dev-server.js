@@ -1,4 +1,5 @@
 var express = require('express');
+const path = require('path');
 
 var axios = require('axios');
 
@@ -127,6 +128,10 @@ apiRoutes.get('/lk', (req, res) => {
   res.json({ k: 12 });
 });
 
+// serve pure static assets
+app.use('/static', express.static(path.join(__dirname, '../dist')))
+
 app.use('/api', apiRoutes);
 
-var server = app.listen(9000);
+
+var server = app.listen(9000, () => console.log('服务端口: ' + 9000));
