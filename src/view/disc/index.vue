@@ -9,10 +9,12 @@ import { mapGetters } from "vuex";
 import { getDisc } from "@/api/disc";
 import { ERR_OK } from "@/api/config";
 import { createSong } from "@/common/js/song";
+import { getSongKey } from "@/api/song";
 export default {
   data() {
     return {
-      detail: null
+      detail: null,
+      songs: []
     };
   },
   computed: {
@@ -30,13 +32,6 @@ export default {
       } else {
         return "";
       }
-    },
-    songs() {
-      if (this.detail) {
-        return this._normalizeSongs(this.detail.songlist);
-      } else {
-        return [];
-      }
     }
   },
   components: {
@@ -52,12 +47,15 @@ export default {
     },
     _normalizeSongs(list) {
       let ret = [];
-      list.forEach((musicData, index) => {
-        if (musicData.songid && musicData.albummid) {
-          ret.push(createSong(musicData));
+      const actualList = list.filter(item => item.songid && item.albummid);
+      actualList.forEach(async musicData => {
+        const { data } = await getSongKey(musicData.songmid);
+        const vkey = data.items[0].vkey;
+        ret.push(createSong(musicData, vkey));
+        if (ret.length === actualList.length) {
+          this.songs = ret;
         }
       });
-      return ret;
     }
   },
   created() {

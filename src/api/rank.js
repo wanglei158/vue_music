@@ -1,11 +1,11 @@
-import jsonp from "common/js/jsonp";
-import { commonParams, options } from "./config";
-import axios from "axios";
+import jsonp from 'common/js/jsonp';
+import { commonParams, options } from './config';
+import axios from 'axios';
 
 export function getTopList() {
-  const url = "https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg";
+  const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg';
   const data = Object.assign({}, commonParams, {
-    platform: "h5",
+    platform: 'h5',
     needNewCode: 1,
     _: 1534383838261
   });
@@ -14,13 +14,13 @@ export function getTopList() {
 }
 
 export function getTop(topid) {
-  const url = "/api/qqmusic/getTop";
+  const url = '/api/qqmusic/getTop';
   const data = Object.assign({}, commonParams, {
-    platform: "h5",
+    platform: 'h5',
     needNewCode: 1,
     tpl: 3,
-    page: "detail",
-    type: "top",
+    page: 'detail',
+    type: 'top',
     topid: topid,
     _: 1534388259105
   });

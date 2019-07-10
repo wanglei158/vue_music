@@ -1,27 +1,27 @@
 <template>
   <scroll
-  id="suggest"
-  :data="result"
-  @scrollToEnd="loadMore"
-  :pullup="true"
-  ref="suggest"
-  :beforeScroll="beforeScroll"
-  @beforeScroll="listScroll"
+    id="suggest"
+    :data="result"
+    @scrollToEnd="loadMore"
+    :pullup="true"
+    ref="suggest"
+    :beforeScroll="beforeScroll"
+    @beforeScroll="listScroll"
   >
-      <ul class="list">
-          <li class="item" v-for="(item,index) in result" :key="index" @click="selectItem(item)">
-              <div class="icon">
-                  <i :class="getIconCls(item)"></i>
-              </div>
-              <div class="name">
-                  <p class="text" v-html="getDsplayName(item)"></p>
-              </div>
-          </li>
-          <loading v-show="!loadAll"></loading>
-          <div class="no-result-wrapper">
-            <no-result v-if="loadAll&&!result.length" title="暂无搜索结果" />
-          </div>
-      </ul>
+    <ul class="list">
+      <li class="item" v-for="(item,index) in result" :key="index" @click="selectItem(item)">
+        <div class="icon">
+          <i :class="getIconCls(item)"></i>
+        </div>
+        <div class="name">
+          <p class="text" v-html="getDsplayName(item)"></p>
+        </div>
+      </li>
+      <loading v-show="!loadAll"></loading>
+      <div class="no-result-wrapper">
+        <no-result v-if="loadAll&&!result.length" title="暂无搜索结果" />
+      </div>
+    </ul>
   </scroll>
 </template>
 
@@ -29,6 +29,7 @@
 import { searchResult } from "@/api/search";
 import { ERR_OK } from "@/api/config";
 import { createSong } from "@/common/js/song";
+import { getSongKey } from "@/api/song";
 import Scroll from "@/base/scroll";
 import Loading from "@/base/loading";
 import Singer from "@/common/js/singer";
@@ -103,9 +104,10 @@ export default {
       }
       this.page++;
       searchResult(this.query, this.page, this.showSinger ? 1 : 0, 20).then(
-        res => {
+        async res => {
           if (res.code === ERR_OK) {
-            this.result = this.result.concat(this._normalizeResult(res.data));
+            const y = await this._normalizeResult(res.data);
+            this.result = this.result.concat(y);
             this._checkMore(res.data);
           }
         }
@@ -122,9 +124,9 @@ export default {
       this.page = 1;
       this.$refs.suggest.scrollTo(0, 0);
       searchResult(this.query, this.page, this.showSinger ? 1 : 0, 20).then(
-        res => {
+        async res => {
           if (res.code === ERR_OK) {
-            this.result = this._normalizeResult(res.data);
+            this.result = await this._normalizeResult(res.data);
             this._checkMore(res.data);
           }
         }
@@ -133,7 +135,7 @@ export default {
     _checkMore(data) {
       const songs = data.song;
       if (
-        !songs.list.length ||
+        !songs.list.length || songs.curnum === 1 ||
         songs.curnum + songs.curpage * 20 >= songs.totalnum
       ) {
         this.loadAll = true;
@@ -141,59 +143,81 @@ export default {
         this.loadAll = false;
       }
     },
-    _normalizeResult(data) {
+    async _normalizeResult(data) {
       let ret = [];
       if (data.zhida && data.zhida.singerid) {
         ret.push({ ...data.zhida, ...{ type: TYPE_SINGER } });
       }
       if (data.song) {
-        ret = ret.concat(this._normalizeSongs(data.song.list));
+        const y = await this._normalizeSongs(data.song.list);
+        ret = ret.concat(y);
       }
       return ret;
     },
     _normalizeSongs(list) {
-      let ret = [];
-      list.map(musicData => {
-        if (musicData.songid && musicData.albummid) {
-          ret.push(createSong(musicData));
-        }
+      return new Promise((resolve, reject) => {
+        let ret = [];
+        const actualList = list.filter(item => item.songid && item.albummid);
+        actualList.forEach(async musicData => {
+          const { data } = await getSongKey(musicData.songmid);
+          const vkey = data.items[0].vkey;
+          ret.push(createSong(musicData, vkey));
+          if (ret.length === actualList.length) {
+            resolve(ret);
+          }
+        });
       });
-      return ret;
     }
   }
 };
 </script>
 
 <style lang="stylus" scoped>
-@import '~common/stylus/variable'
-@import '~common/stylus/mixin'
-    #suggest
-        height 100%
-        overflow :hidden
-        .list
-            padding:0 30px
-            .item
-                display:flex
-                align-items:center
-                padding-bottom :20px
-            .icon
-                flex:0 0 30px
-                width:30px
-                [class^="icon-"]
-                    font-size:$font-size-medium
-                    color:$color-text-d
-            .name
-                flex:1
-                font-size:$font-size-medium
-                color:$color-text-d
-                .text
-                    no-wrap()
-        .no-result-wrapper
-            position:absolute
-            width:100%
-            height:100%
-            left:0
-            top:50%
-            z-index:-1
-            transform:translateY(-50%)
+@import '~common/stylus/variable';
+@import '~common/stylus/mixin';
+
+#suggest {
+  height: 100%;
+  overflow: hidden;
+
+  .list {
+    padding: 0 30px;
+
+    .item {
+      display: flex;
+      align-items: center;
+      padding-bottom: 20px;
+    }
+
+    .icon {
+      flex: 0 0 30px;
+      width: 30px;
+
+      [class^='icon-'] {
+        font-size: $font-size-medium;
+        color: $color-text-d;
+      }
+    }
+
+    .name {
+      flex: 1;
+      font-size: $font-size-medium;
+      color: $color-text-d;
+
+      .text {
+        no-wrap();
+      }
+    }
+  }
+
+  .no-result-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 50%;
+    z-index: -1;
+    transform: translateY(-50%);
+  }
+}
 </style>

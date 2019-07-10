@@ -1,13 +1,14 @@
 <template>
-    <transition name="slider">
-        <music-list :songs="songs" :title="title" :bgImage="avatar"></music-list>
-    </transition>
+  <transition name="slider">
+    <music-list :songs="songs" :title="title" :bgImage="avatar"></music-list>
+  </transition>
 </template>
 
 <script>
 import { getSingerDetail } from "@/api/singer";
 import { ERR_OK } from "@/api/config";
 import { createSong } from "@/common/js/song";
+import { getSongKey } from "@/api/song";
 import MusicList from "@/components/music-list";
 import Singer from "common/js/singer";
 export default {
@@ -41,19 +42,24 @@ export default {
             id: res.data.singer_mid,
             name: res.data.singer_name
           });
-          this.songs = this._normalizeSongs(res.data.list);
+          this._normalizeSongs(res.data.list);
         }
       });
     },
     _normalizeSongs(list) {
       let ret = [];
-      list.forEach((item, index) => {
+      const actualList = list.filter(
+        item => item.musicData.songid && item.musicData.albummid
+      );
+      actualList.forEach(async item => {
         let { musicData } = item;
-        if (musicData.songid && musicData.albummid) {
-          ret.push(createSong(musicData));
+        const { data } = await getSongKey(musicData.songmid);
+        const vkey = data.items[0].vkey;
+        ret.push(createSong(musicData, vkey));
+        if (ret.length === actualList.length) {
+          this.songs = ret;
         }
       });
-      return ret;
     }
   },
   created() {
@@ -63,9 +69,13 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-    @import '~common/stylus/variable';
-    .slider-enter-active,.slider-leave-active
-        transition :all 0.3s
-    .slider-enter,.slider-leave-to
-        transform :translate3d(100%,0,0)
+@import '~common/stylus/variable';
+
+.slider-enter-active, .slider-leave-active {
+  transition: all 0.3s;
+}
+
+.slider-enter, .slider-leave-to {
+  transform: translate3d(100%, 0, 0);
+}
 </style>

@@ -9,12 +9,14 @@ import MusicList from "@/components/music-list";
 import { getTop } from "@/api/rank";
 import { ERR_OK } from "@/api/config";
 import { createSong } from "@/common/js/song";
+import { getSongKey } from "@/api/song";
 export default {
   data() {
     return {
       flag: 0,
       detail: null,
-      rank: true
+      rank: true,
+      songs: []
     };
   },
   computed: {
@@ -29,12 +31,6 @@ export default {
         return this.detail.topinfo.ListName;
       }
       return "";
-    },
-    songs() {
-      if (this.flag) {
-        return this._normallizeSongs(this.detail.songlist);
-      }
-      return [];
     }
   },
   components: {
@@ -46,18 +42,24 @@ export default {
         if (res.code === ERR_OK) {
           this.flag = 1;
           this.detail = res;
+          this._normallizeSongs(this.detail.songlist);
         }
       });
     },
     _normallizeSongs(songs) {
       let ret = [];
-      songs.map(item => {
-        let { data } = item;
-        if (data.songid && data.albummid) {
-          ret.push(createSong(data));
+      const actualList = songs.filter(
+        item => item.data.songid && item.data.albummid
+      );
+      actualList.forEach(async item => {
+        let { data: musicData } = item;
+        const { data } = await getSongKey(musicData.songmid);
+        const vkey = data.items[0].vkey;
+        ret.push(createSong(musicData, vkey));
+        if (ret.length === actualList.length) {
+          this.songs = ret;
         }
       });
-      return ret;
     }
   },
   created() {
@@ -67,10 +69,14 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
-@import '~common/stylus/variable'
-@import '~common/stylus/mixin'
-  .slider-enter-active,.slider-leave-active
-    transition :all 0.3s
-  .slider-enter,.slider-leave-to
-    transform :translate3d(100%,0,0)
+@import '~common/stylus/variable';
+@import '~common/stylus/mixin';
+
+.slider-enter-active, .slider-leave-active {
+  transition: all 0.3s;
+}
+
+.slider-enter, .slider-leave-to {
+  transform: translate3d(100%, 0, 0);
+}
 </style>
