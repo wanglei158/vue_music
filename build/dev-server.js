@@ -1,5 +1,6 @@
 var express = require('express');
 const path = require('path');
+const { exec, spawn } = require('child_process')
 
 var axios = require('axios');
 
@@ -134,4 +135,16 @@ app.use('/static', express.static(path.join(__dirname, '../dist')))
 app.use('/api', apiRoutes);
 
 
-var server = app.listen(9000, () => console.log('服务端口: ' + 9000));
+var server = app.listen(9000, () => {
+  console.log(`后端已启动：9000`)
+  const clientServer = spawn('npm', ['run', 'dev']);
+  clientServer.stdout.on('data', data => {
+    console.log(`stdout: ${data}`);
+  });
+
+  clientServer.on('close', (code) => {
+    console.log(`子进程退出，使用退出码 ${code}`);
+  });
+});
+
+
