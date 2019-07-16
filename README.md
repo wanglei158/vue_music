@@ -5,6 +5,7 @@
 > 2、解决了在 safari 浏览器上无法自动播放的问题
 
 整套接口都是 qqmusic 采摘下来的
+#真棒
 
 ## Build Setup
 
