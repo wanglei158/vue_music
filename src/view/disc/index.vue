@@ -42,6 +42,7 @@ export default {
       getDisc(this.$route.params.id).then(res => {
         if (res.code === ERR_OK) {
           this.detail = res.cdlist[0];
+          this._normalizeSongs(this.detail.songlist)
         }
       });
     },
