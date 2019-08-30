@@ -1,8 +1,9 @@
 var express = require('express');
 const path = require('path');
-const { spawn } = require('child_process')
+const { spawn } = require('child_process');
 
 var axios = require('axios');
+// const IS_DEV = process.env.NODE_ENV === 'development';
 
 var app = express();
 
@@ -130,21 +131,20 @@ apiRoutes.get('/lk', (req, res) => {
 });
 
 // serve pure static assets
-app.use('/static', express.static(path.join(__dirname, '../dist')))
+app.use('/static', express.static(path.join(__dirname, '../dist')));
 
 app.use('/api', apiRoutes);
 
-
 var server = app.listen(9000, () => {
-  console.log(`后端已启动：9000`)
-  const clientServer = spawn('npm', ['run', 'dev']);
-  clientServer.stdout.on('data', data => {
-    console.log(`${data}`);
-  });
+  console.log(`后端已启动：9000`);
+  // if(IS_DEV) {
+  //   const clientServer = spawn('npm', ['run', 'dev']);
+  //   clientServer.stdout.on('data', data => {
+  //     console.log(`${data}`);
+  //   });
 
-  clientServer.on('close', (code) => {
-    console.log(`子进程退出，使用退出码 ${code}`);
-  });
+  //   clientServer.on('close', code => {
+  //     console.log(`子进程退出，使用退出码 ${code}`);
+  //   });
+  // }
 });
-
-
